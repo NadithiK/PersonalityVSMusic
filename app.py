@@ -1,8 +1,3 @@
-# app.py
-
-import streamlit as st
-import joblib
-import numpy as np
 
 # Load model (make sure this file exists in the same directory)
 model = joblib.load('music_model.pkl')
