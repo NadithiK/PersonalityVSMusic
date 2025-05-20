@@ -1,35 +1,27 @@
-# app.py
-
 import streamlit as st
+import pandas as pd
 import joblib
-import numpy as np
 
-# Load model (make sure this file exists in the same directory)
-model = joblib.load('PersonalityVSMusic.pkl')
+st.set_page_config(page_title="Music Recommender", layout="centered")
+st.title("🎧 Music Genre Recommender")
+st.markdown("Get a recommended genre based on your MBTI type and tempo preference.")
 
-st.title("Music Recommendation Based on Personality")
+# Load model
+model = joblib.load("model.pkl")
 
-# MBTI questions
-st.header("Answer the following to determine your MBTI type:")
+# Input
+personality = st.selectbox("Select your MBTI type:", ['E', 'I'])
+tempo = st.radio("Preferred music tempo:", ['Slow/Calm', 'Medium', 'Fast/Energetic'])
+tempo_map = {'Slow/Calm': 1, 'Medium': 2, 'Fast/Energetic': 3}
+tempo_val = tempo_map[tempo]
 
-q1 = st.radio("When it comes to socialising:", ("Extraversion", "Introversion"))
-q2 = st.radio("When processing information:", ("Sensing", "Intuition"))
-q3 = st.radio("When making decisions:", ("Thinking", "Feeling"))
-q4 = st.radio("When planning your day or tasks:", ("Judging", "Perceiving"))
+# Predict
+if st.button("Recommend Genre"):
+    # Encode MBTI
+    input_dict = {'MBTI_E': 0, 'MBTI_I': 0}
+    input_dict[f'MBTI_{personality}'] = 1
+    input_dict['Tempo_Ordinal'] = tempo_val
+    input_df = pd.DataFrame([input_dict])
 
-# Build MBTI type
-mbti = ""
-mbti += "E" if q1 == "Extraversion" else "I"
-mbti += "S" if q2 == "Sensing" else "N"
-mbti += "T" if q3 == "Thinking" else "F"
-mbti += "J" if q4 == "Judging" else "P"
-
-st.markdown(f"**Your MBTI Type:** `{mbti}`")
-
-if st.button("Predict"):
-    try:
-        # If your model expects encoded input, make sure to pre-process mbti accordingly
-        prediction = model.predict([mbti])  # May need transformation to match training input
-        st.success(f"🎵 Based on your personality type, we recommend: {prediction[0]}")
-    except Exception as e:
-        st.error(f"Prediction failed: {e}")
+    prediction = model.predict(input_df)[0]
+    st.success(f"🎶 Your recommended genre label is: **{prediction}**")
