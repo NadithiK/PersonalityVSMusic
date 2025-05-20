@@ -7,7 +7,7 @@ st.title("🎧 Music Genre Recommender")
 st.markdown("Get a recommended genre based on your MBTI type and tempo preference.")
 
 # Load model
-model = joblib.load("model.pkl")
+model = joblib.load("PersonalityVSMusic.pkl")
 
 # Input
 personality = st.selectbox("Select your MBTI type:", ['E', 'I'])
